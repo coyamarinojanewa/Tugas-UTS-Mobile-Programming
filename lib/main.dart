@@ -4,6 +4,8 @@ void main() {
   runApp(MyApp());
 }
 
+// ================= MODEL IPHONE =================
+
 class Iphone {
   final String name;
   final String image;
@@ -16,9 +18,77 @@ class Iphone {
     required this.price,
     required this.description,
   });
+
+  // Getter harga integer
+  int get priceValue {
+    return int.parse(
+      price
+          .replaceAll('Rp ', '')
+          .replaceAll('.', '')
+          .replaceAll(',', ''),
+    );
+  }
 }
 
+// ================= OOP CART MANAGER =================
+
+class CartManager {
+  List<Iphone> items = [];
+
+  void addItem(Iphone item) {
+    items.add(item);
+  }
+
+  void removeItem(int index) {
+    items.removeAt(index);
+  }
+
+  int get totalPrice {
+    return items.fold(
+      0,
+          (total, item) => total + item.priceValue,
+    );
+  }
+
+  double get averagePrice {
+    if (items.isEmpty) return 0;
+
+    return totalPrice / items.length;
+  }
+
+  Iphone? get highestPriceItem {
+    if (items.isEmpty) return null;
+
+    Iphone highest = items[0];
+
+    for (var item in items) {
+      if (item.priceValue > highest.priceValue) {
+        highest = item;
+      }
+    }
+
+    return highest;
+  }
+
+  Iphone? get lowestPriceItem {
+    if (items.isEmpty) return null;
+
+    Iphone lowest = items[0];
+
+    for (var item in items) {
+      if (item.priceValue < lowest.priceValue) {
+        lowest = item;
+      }
+    }
+
+    return lowest;
+  }
+}
+
+// ================= DATA HP =================
+
 List<Iphone> iphones = [
+
   Iphone(
     name: 'iPhone 15 Pro Max',
     image:
@@ -44,24 +114,32 @@ List<Iphone> iphones = [
   ),
 ];
 
-List<Iphone> cart = [];
+CartManager cart = CartManager();
+
 List<String> paymentHistory = [];
+
+// ================= APP =================
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'iPhone Store',
+      title: 'Coys Phone Store',
+
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+
       home: LoginPage(),
     );
   }
 }
 
+// ================= LOGIN =================
+
 class LoginPage extends StatelessWidget {
+
   final TextEditingController username =
   TextEditingController();
 
@@ -70,6 +148,7 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.all(20),
@@ -81,6 +160,7 @@ class LoginPage extends StatelessWidget {
               MainAxisAlignment.center,
 
               children: [
+
                 Icon(
                   Icons.phone_iphone,
                   size: 100,
@@ -90,7 +170,7 @@ class LoginPage extends StatelessWidget {
                 SizedBox(height: 20),
 
                 Text(
-                  'iPhone Store',
+                  'Coys Phone Store',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -127,6 +207,7 @@ class LoginPage extends StatelessWidget {
 
                   child: ElevatedButton(
                     onPressed: () {
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -148,6 +229,8 @@ class LoginPage extends StatelessWidget {
   }
 }
 
+// ================= HOME =================
+
 class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() =>
@@ -155,17 +238,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('iPhone Store'),
+        title: Text('Coys Phone Store'),
 
         actions: [
+
+          // ================= CART =================
+
           IconButton(
             icon: Icon(Icons.shopping_cart),
 
             onPressed: () {
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -175,10 +264,13 @@ class _HomePageState extends State<HomePage> {
             },
           ),
 
+          // ================= HISTORY =================
+
           IconButton(
             icon: Icon(Icons.history),
 
             onPressed: () {
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -194,6 +286,7 @@ class _HomePageState extends State<HomePage> {
         itemCount: iphones.length,
 
         itemBuilder: (context, index) {
+
           final iphone = iphones[index];
 
           return Card(
@@ -217,18 +310,6 @@ class _HomePageState extends State<HomePage> {
                   width: 70,
                   height: 70,
                   fit: BoxFit.cover,
-
-                  errorBuilder:
-                      (
-                      context,
-                      error,
-                      stackTrace,
-                      ) {
-                    return Icon(
-                      Icons.image_not_supported,
-                      size: 50,
-                    );
-                  },
                 ),
               ),
 
@@ -252,6 +333,7 @@ class _HomePageState extends State<HomePage> {
               ),
 
               onTap: () {
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -270,13 +352,19 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// ================= DETAIL =================
+
 class DetailPage extends StatelessWidget {
+
   final Iphone iphone;
 
-  DetailPage({required this.iphone});
+  DetailPage({
+    required this.iphone,
+  });
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text(iphone.name),
@@ -291,6 +379,7 @@ class DetailPage extends StatelessWidget {
             CrossAxisAlignment.start,
 
             children: [
+
               Center(
                 child: ClipRRect(
                   borderRadius:
@@ -339,7 +428,8 @@ class DetailPage extends StatelessWidget {
 
                 child: ElevatedButton(
                   onPressed: () {
-                    cart.add(iphone);
+
+                    cart.addItem(iphone);
 
                     ScaffoldMessenger.of(
                       context,
@@ -365,6 +455,8 @@ class DetailPage extends StatelessWidget {
   }
 }
 
+// ================= CART =================
+
 class CartPage extends StatefulWidget {
   @override
   State<CartPage> createState() =>
@@ -372,28 +464,83 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Keranjang'),
       ),
 
-      body: cart.isEmpty
+      body: cart.items.isEmpty
           ? Center(
         child: Text(
           'Keranjang kosong',
         ),
       )
+
           : Column(
         children: [
+
+          // ================= STATISTIK =================
+
+          Container(
+            margin: EdgeInsets.all(10),
+            padding: EdgeInsets.all(15),
+
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius:
+              BorderRadius.circular(15),
+            ),
+
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+
+              children: [
+
+                Text(
+                  'Statistik Belanja',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                SizedBox(height: 10),
+
+                Text(
+                  'Total Belanja: Rp ${cart.totalPrice}',
+                ),
+
+                Text(
+                  'Rata-rata Harga: Rp ${cart.averagePrice.toStringAsFixed(0)}',
+                ),
+
+                Text(
+                  'Barang Termahal: ${cart.highestPriceItem?.name ?? '-'}',
+                ),
+
+                Text(
+                  'Barang Termurah: ${cart.lowestPriceItem?.name ?? '-'}',
+                ),
+              ],
+            ),
+          ),
+
+          // ================= LIST CART =================
+
           Expanded(
             child: ListView.builder(
-              itemCount: cart.length,
+              itemCount: cart.items.length,
 
               itemBuilder:
                   (context, index) {
-                final item = cart[index];
+
+                final item =
+                cart.items[index];
 
                 return Card(
                   child: ListTile(
@@ -415,10 +562,9 @@ class _CartPageState extends State<CartPage> {
                       ),
 
                       onPressed: () {
+
                         setState(() {
-                          cart.removeAt(
-                            index,
-                          );
+                          cart.removeItem(index);
                         });
                       },
                     ),
@@ -428,6 +574,8 @@ class _CartPageState extends State<CartPage> {
             ),
           ),
 
+          // ================= CHECKOUT =================
+
           Padding(
             padding: EdgeInsets.all(20),
 
@@ -436,6 +584,7 @@ class _CartPageState extends State<CartPage> {
 
               child: ElevatedButton(
                 onPressed: () {
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -458,6 +607,8 @@ class _CartPageState extends State<CartPage> {
   }
 }
 
+// ================= CHECKOUT =================
+
 class CheckoutPage extends StatefulWidget {
   @override
   State<CheckoutPage> createState() =>
@@ -466,10 +617,21 @@ class CheckoutPage extends StatefulWidget {
 
 class _CheckoutPageState
     extends State<CheckoutPage> {
+
   String selectedPayment = 'QRIS';
+
+  final TextEditingController namaController =
+  TextEditingController();
+
+  final TextEditingController hpController =
+  TextEditingController();
+
+  final TextEditingController alamatController =
+  TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Checkout'),
@@ -478,78 +640,139 @@ class _CheckoutPageState
       body: Padding(
         padding: EdgeInsets.all(20),
 
-        child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
 
-          children: [
-            Text(
-              'Pilih Metode Pembayaran',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+            children: [
+
+              // ================= ALAMAT =================
+
+              Text(
+                'Alamat Pengiriman',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
 
-            SizedBox(height: 15),
+              SizedBox(height: 15),
 
-            Card(
-              child: RadioListTile(
-                value: 'QRIS',
-                groupValue: selectedPayment,
-                title: Text('QRIS'),
-                secondary: Icon(Icons.qr_code),
+              TextField(
+                controller: namaController,
 
-                onChanged: (value) {
-                  setState(() {
-                    selectedPayment =
-                        value.toString();
-                  });
-                },
+                decoration: InputDecoration(
+                  labelText: 'Nama Penerima',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
+                ),
               ),
-            ),
 
-            Card(
-              child: RadioListTile(
-                value: 'E-Wallet',
-                groupValue: selectedPayment,
-                title: Text('E-Wallet'),
-                secondary: Icon(Icons.wallet),
+              SizedBox(height: 15),
 
-                onChanged: (value) {
-                  setState(() {
-                    selectedPayment =
-                        value.toString();
-                  });
-                },
+              TextField(
+                controller: hpController,
+                keyboardType: TextInputType.phone,
+
+                decoration: InputDecoration(
+                  labelText: 'Nomor HP',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.phone),
+                ),
               ),
-            ),
 
-            Card(
-              child: RadioListTile(
-                value: 'COD',
-                groupValue: selectedPayment,
-                title: Text('COD'),
-                secondary: Icon(Icons.money),
+              SizedBox(height: 15),
 
-                onChanged: (value) {
-                  setState(() {
-                    selectedPayment =
-                        value.toString();
-                  });
-                },
+              TextField(
+                controller: alamatController,
+                maxLines: 3,
+
+                decoration: InputDecoration(
+                  labelText: 'Alamat Lengkap',
+                  border: OutlineInputBorder(),
+                  prefixIcon:
+                  Icon(Icons.location_on),
+                ),
               ),
-            ),
 
-            SizedBox(height: 20),
+              SizedBox(height: 25),
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: cart.length,
+              // ================= PEMBAYARAN =================
+
+              Text(
+                'Pilih Metode Pembayaran',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              SizedBox(height: 15),
+
+              Card(
+                child: RadioListTile(
+                  value: 'QRIS',
+                  groupValue: selectedPayment,
+                  title: Text('QRIS'),
+                  secondary: Icon(Icons.qr_code),
+
+                  onChanged: (value) {
+                    setState(() {
+                      selectedPayment =
+                          value.toString();
+                    });
+                  },
+                ),
+              ),
+
+              Card(
+                child: RadioListTile(
+                  value: 'E-Wallet',
+                  groupValue: selectedPayment,
+                  title: Text('E-Wallet'),
+                  secondary: Icon(Icons.wallet),
+
+                  onChanged: (value) {
+                    setState(() {
+                      selectedPayment =
+                          value.toString();
+                    });
+                  },
+                ),
+              ),
+
+              Card(
+                child: RadioListTile(
+                  value: 'COD',
+                  groupValue: selectedPayment,
+                  title: Text('COD'),
+                  secondary: Icon(Icons.money),
+
+                  onChanged: (value) {
+                    setState(() {
+                      selectedPayment =
+                          value.toString();
+                    });
+                  },
+                ),
+              ),
+
+              SizedBox(height: 20),
+
+              // ================= LIST ITEM =================
+
+              ListView.builder(
+                itemCount: cart.items.length,
+                shrinkWrap: true,
+                physics:
+                NeverScrollableScrollPhysics(),
 
                 itemBuilder:
                     (context, index) {
-                  final item = cart[index];
+
+                  final item =
+                  cart.items[index];
 
                   return Card(
                     child: ListTile(
@@ -568,165 +791,263 @@ class _CheckoutPageState
                   );
                 },
               ),
-            ),
 
-            SizedBox(
-              width: double.infinity,
+              SizedBox(height: 20),
 
-              child: ElevatedButton(
-                onPressed: () {
-                  paymentHistory.add(
-                    'Pembayaran $selectedPayment berhasil pada ${DateTime.now()}',
-                  );
-
-                  cart.clear();
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (_) => PaymentPage(
-                        paymentMethod:
-                        selectedPayment,
-                      ),
-                    ),
-                  );
-                },
-
-                child: Text(
-                  'Bayar Sekarang',
+              Text(
+                'Total Bayar: Rp ${cart.totalPrice}',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
                 ),
               ),
-            )
-          ],
+
+              SizedBox(height: 20),
+
+              // ================= BAYAR =================
+
+              SizedBox(
+                width: double.infinity,
+
+                child: ElevatedButton(
+                  onPressed: () {
+
+                    if (namaController.text.isEmpty ||
+                        hpController.text.isEmpty ||
+                        alamatController.text.isEmpty) {
+
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Lengkapi alamat pengiriman terlebih dahulu',
+                          ),
+                        ),
+                      );
+
+                      return;
+                    }
+
+                    paymentHistory.add(
+                      'Pembayaran $selectedPayment berhasil - Total Rp ${cart.totalPrice}',
+                    );
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (_) => PaymentPage(
+                          paymentMethod:
+                          selectedPayment,
+
+                          nama:
+                          namaController.text,
+
+                          hp:
+                          hpController.text,
+
+                          alamat:
+                          alamatController.text,
+                        ),
+                      ),
+                    );
+                  },
+
+                  child: Text(
+                    'Bayar Sekarang',
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
+// ================= PAYMENT =================
+
 class PaymentPage extends StatelessWidget {
+
   final String paymentMethod;
+  final String nama;
+  final String hp;
+  final String alamat;
 
   PaymentPage({
     required this.paymentMethod,
+    required this.nama,
+    required this.hp,
+    required this.alamat,
   });
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Pembayaran'),
       ),
 
       body: Center(
-        child: Column(
-          mainAxisAlignment:
-          MainAxisAlignment.center,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment:
+            MainAxisAlignment.center,
 
-          children: [
-            Icon(
-              Icons.check_circle,
-              size: 120,
-              color: Colors.green,
-            ),
+            children: [
 
-            SizedBox(height: 20),
-
-            Text(
-              'Pembayaran Berhasil',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            SizedBox(height: 15),
-
-            Text(
-              'Metode: $paymentMethod',
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-
-            SizedBox(height: 20),
-
-            if (paymentMethod == 'QRIS')
-              Column(
-                children: [
-                  Icon(
-                    Icons.qr_code,
-                    size: 120,
-                  ),
-
-                  SizedBox(height: 10),
-
-                  Text(
-                    'Silakan scan QRIS',
-                  ),
-                ],
+              Icon(
+                Icons.check_circle,
+                size: 120,
+                color: Colors.green,
               ),
 
-            if (paymentMethod == 'E-Wallet')
-              Column(
-                children: [
-                  Icon(
-                    Icons.wallet,
-                    size: 120,
-                  ),
+              SizedBox(height: 20),
 
-                  SizedBox(height: 10),
-
-                  Text(
-                    'Pembayaran via E-Wallet',
-                  ),
-                ],
+              Text(
+                'Pembayaran Berhasil',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
-            if (paymentMethod == 'COD')
-              Column(
-                children: [
-                  Icon(
-                    Icons.money,
-                    size: 120,
-                  ),
+              SizedBox(height: 15),
 
-                  SizedBox(height: 10),
-
-                  Text(
-                    'Bayar di tempat (COD)',
-                  ),
-                ],
+              Text(
+                'Metode: $paymentMethod',
+                style: TextStyle(
+                  fontSize: 20,
+                ),
               ),
 
-            SizedBox(height: 30),
+              SizedBox(height: 20),
 
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => HomePage(),
-                  ),
-                      (route) => false,
-                );
-              },
+              Padding(
+                padding: EdgeInsets.all(20),
 
-              child: Text(
-                'Kembali ke Home',
+                child: Column(
+                  children: [
+
+                    Text(
+                      'Penerima: $nama',
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Text(
+                      'No HP: $hp',
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Text(
+                      'Alamat: $alamat',
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
-            )
-          ],
+
+              SizedBox(height: 15),
+
+              Text(
+                'Total: Rp ${cart.totalPrice}',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
+
+              SizedBox(height: 20),
+
+              if (paymentMethod == 'QRIS')
+                Column(
+                  children: [
+                    Icon(
+                      Icons.qr_code,
+                      size: 120,
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Text(
+                      'Silakan scan QRIS',
+                    ),
+                  ],
+                ),
+
+              if (paymentMethod == 'E-Wallet')
+                Column(
+                  children: [
+                    Icon(
+                      Icons.wallet,
+                      size: 120,
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Text(
+                      'Pembayaran via E-Wallet',
+                    ),
+                  ],
+                ),
+
+              if (paymentMethod == 'COD')
+                Column(
+                  children: [
+                    Icon(
+                      Icons.money,
+                      size: 120,
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Text(
+                      'Bayar di tempat (COD)',
+                    ),
+                  ],
+                ),
+
+              SizedBox(height: 30),
+
+              ElevatedButton(
+                onPressed: () {
+
+                  cart.items.clear();
+
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HomePage(),
+                    ),
+                        (route) => false,
+                  );
+                },
+
+                child: Text(
+                  'Kembali ke Home',
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
+// ================= HISTORY =================
+
 class HistoryPage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -740,12 +1061,14 @@ class HistoryPage extends StatelessWidget {
           'Belum ada histori pembayaran',
         ),
       )
+
           : ListView.builder(
         itemCount:
         paymentHistory.length,
 
         itemBuilder:
             (context, index) {
+
           return Card(
             child: ListTile(
               leading: Icon(
